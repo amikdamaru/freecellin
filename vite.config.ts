@@ -2,7 +2,12 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// Sub-path the app is served from. GitHub Pages project sites live under
+// /<repo>/, so the deploy workflow sets BASE_PATH=/freecellin/.
+const base = process.env.BASE_PATH ?? '/';
+
 export default defineConfig({
+  base,
   plugins: [
     react(),
     VitePWA({
