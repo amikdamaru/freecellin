@@ -4,7 +4,7 @@ import type { Suit } from '../engine/card';
 const circle = (x: number, y: number, r: number) => `M${x - r} ${y}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0z`;
 
 /** Each shape is drawn as its own path, so overlapping parts never cancel out. */
-const SUIT_PATHS: Record<Suit, string[]> = {
+export const SUIT_PATHS: Record<Suit, string[]> = {
   H: ['M50 90C22 68 5 49 5 30 5 14 17 4 30 4c9 0 16 5 20 13 4-8 11-13 20-13 13 0 25 10 25 26 0 19-17 38-45 60z'],
   D: ['M50 3 88 50 50 97 12 50z'],
   S: [

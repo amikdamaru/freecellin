@@ -32,7 +32,7 @@ export default defineConfig({
       },
       workbox: {
         // Precache everything the game needs, including sound effects and music.
-        globPatterns: ['**/*.{js,css,html,svg,png,wav,mp3,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,wav,mp3,woff2,webmanifest}'],
         // The background music (audio3.mp3, ~5.7 MB) exceeds Workbox's 2 MB default.
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         navigateFallback: 'index.html',

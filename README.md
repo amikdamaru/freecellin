@@ -4,7 +4,9 @@ Freecellin is a classic FreeCell solitaire game with Microsoft-compatible number
 
 The app's name is **Freecellin**. Keep it unchanged in the header, the page title, the manifest and the package name.
 
-Stack: React 19, TypeScript, Vite, vite-plugin-pwa (Workbox), and Vitest. There is no backend, and the only runtime dependencies are `react` and `react-dom`.
+Stack: React 19, TypeScript, Vite, vite-plugin-pwa (Workbox), and Vitest. There is no backend. The runtime dependencies are `react`, `react-dom`, and `@fontsource/fredoka`. Fredoka (OFL-1.1) is the font of the "Freecellin" logo. It is bundled locally so the logo also renders offline. Only the 700-weight Latin subset is used, about 16 KB.
+
+The header banner (`src/components/Logo.tsx`) is pure SVG: fanned aces, the wordmark, sparkles, and green hills. On phones it is deliberately tall so that the board sits lower, within thumb reach. On short landscape screens it is compact so the cards keep their size.
 
 ## Commands
 

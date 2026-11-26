@@ -56,7 +56,9 @@ export function fanOffset(n: number, layout: BoardLayout): number {
   // The minimum still shows the full rank + suit index of every covered card.
   // Narrow (phone) cards get a wider fan when there is room: bigger touch targets.
   const max = layout.cardH * (layout.cardW < 64 ? 0.42 : 0.27);
-  const min = layout.cardH * 0.19;
+  // Rank index font is clamp(13px, 0.29 * cardW, 28px) in card.css; never cover it.
+  const rankPx = Math.min(28, Math.max(13, layout.cardW * 0.29));
+  const min = Math.max(layout.cardH * 0.19, rankPx + 4);
   if (n <= 1) return max;
   const fit = (layout.tableauH - layout.cardH) / (n - 1);
   return Math.max(min, Math.min(max, fit));
