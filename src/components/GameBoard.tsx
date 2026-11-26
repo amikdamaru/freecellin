@@ -39,7 +39,9 @@ export function GameBoard({ game }: { game: GameApi }) {
       const cards =
         from.kind === 'tableau'
           ? board.tableau[from.index].slice(-count)
-          : [board.freeCells[from.index] as number];
+          : from.kind === 'foundation'
+            ? board.foundations[from.index].slice(-1)
+            : [board.freeCells[from.index] as number];
       beginPress(e, from, count, cards);
     },
     [beginPress, board],
@@ -137,13 +139,20 @@ export function GameBoard({ game }: { game: GameApi }) {
           })}
           {board.foundations.map((pile, i) => {
             const loc: Location = { kind: 'foundation', index: i };
+            const top = pile[pile.length - 1];
             return (
               <Foundation
                 key={`found-${i}`}
                 index={i}
                 pile={pile}
                 target={targets.has(key(loc))}
-                onActivate={guard(() => game.onPile(loc))}
+                selected={selection?.from.kind === 'foundation' && selection.from.index === i}
+                lifted={top !== undefined && lifted.has(top)}
+                enabled={enabled}
+                // Tapping a filled foundation selects its top card (or, with another
+                // selection active, tries to place that selection here).
+                onActivate={guard(() => (top !== undefined ? game.onCard(loc, 0) : game.onPile(loc)))}
+                onPress={(e) => press(e, loc, 1)}
               />
             );
           })}

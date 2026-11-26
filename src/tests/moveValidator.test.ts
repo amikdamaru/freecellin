@@ -102,7 +102,29 @@ describe('validateMove', () => {
     expect(validateMove(b, { from: T(1), to: H(2), count: 1 }).ok).toBe(false); // 2 before Ace
     expect(validateMove(b, { from: T(2), to: H(3), count: 1 }).ok).toBe(false); // 3S on AS
     expect(validateMove(b, { from: T(3), to: H(0), count: 1 }).ok).toBe(true);
-    expect(validateMove(b, { from: H(0), to: T(0), count: 1 })).toEqual({ ok: false, reason: 'from-foundation' });
+  });
+
+  it('lets the top foundation card go back onto a tableau column (house rule)', () => {
+    const b = board({
+      tableau: [['9S'], ['4H'], [], ['5S']],
+      freeCells: [null, null, null, null],
+      foundations: [pileUpTo('C', 3), pileUpTo('D', 8), [], []],
+    });
+    // 8D (top of diamonds) onto black 9S: allowed.
+    expect(validateMove(b, { from: H(1), to: T(0), count: 1 })).toEqual({ ok: true });
+    // 3C onto red 4H: allowed. Onto an empty column: allowed.
+    expect(validateMove(b, { from: H(0), to: T(1), count: 1 }).ok).toBe(true);
+    expect(validateMove(b, { from: H(0), to: T(2), count: 1 }).ok).toBe(true);
+    // Normal tableau rules still apply: 3C on 5S is wrong.
+    expect(validateMove(b, { from: H(0), to: T(3), count: 1 })).toEqual({ ok: false, reason: 'tableau-mismatch' });
+    // Only to columns: not to a free cell or another foundation.
+    expect(validateMove(b, { from: H(0), to: F(0), count: 1 })).toEqual({ ok: false, reason: 'from-foundation' });
+    expect(validateMove(b, { from: H(0), to: H(2), count: 1 })).toEqual({ ok: false, reason: 'from-foundation' });
+    // One card only, and never from an empty pile.
+    expect(validateMove(b, { from: H(0), to: T(2), count: 2 })).toEqual({ ok: false, reason: 'bad-count' });
+    expect(validateMove(b, { from: H(2), to: T(2), count: 1 })).toEqual({ ok: false, reason: 'empty-source' });
+    // Columns 3 and 5..8 are empty in this board; 4H and 5S do not accept 8D.
+    expect(validDestinations(b, H(1), 1)).toEqual([T(0), T(2), T(4), T(5), T(6), T(7)]);
   });
 
   it('lets any card or run start an empty column', () => {

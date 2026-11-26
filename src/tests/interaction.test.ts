@@ -90,6 +90,43 @@ describe('one action -> one sound', () => {
   });
 });
 
+describe('taking a card back from a foundation', () => {
+  const withFoundations = () =>
+    state(board({ tableau: [['9S'], ['KD'], []], foundations: [pileUpTo('C', 2), pileUpTo('D', 8), [], []] }));
+
+  it('selects the top foundation card and builds it onto a column (arrange, 1 move)', () => {
+    const t1 = activateCard(withFoundations(), H(1), 0, 0);
+    expect(t1.state.selection).toEqual({ from: H(1), count: 1 });
+    expect(t1.effects.sound).toBe(SoundEvent.CARD_SELECTED);
+    const t2 = activateCard(t1.state, T(0), 0, 500);
+    expect(t2.effects.sound).toBe(SoundEvent.CARD_ARRANGED);
+    expect(t2.state.session.board.foundations[1]).toHaveLength(7);
+    expect(t2.state.session.board.tableau[0]).toHaveLength(2);
+    expect(t2.state.session.moveCount).toBe(1);
+    expect(t2.state.session.timer.startedAt).toBe(500);
+  });
+
+  it('can be dragged to an empty column (move sound) and undone', async () => {
+    const s0 = withFoundations();
+    const t = dropCards(s0, H(0), 1, T(2), 0);
+    expect(t.effects.sound).toBe(SoundEvent.CARD_MOVED);
+    const { undo } = await import('../engine/gameActions');
+    expect(undo(t.state.session).board).toEqual(s0.session.board);
+  });
+
+  it('is rejected towards a free cell or an unsuitable card', () => {
+    const s0 = withFoundations();
+    expect(dropCards(s0, H(1), 1, F(0), 0).effects.sound).toBe(SoundEvent.INVALID_MOVE);
+    expect(dropCards(s0, H(1), 1, T(1), 0).effects.sound).toBe(SoundEvent.INVALID_MOVE); // 8D on KD
+  });
+
+  it('is not triggered by a double-click', () => {
+    const t = quickMove(withFoundations(), H(1), 0, 0);
+    expect(t.state.session.moveCount).toBe(0);
+    expect(t.effects.sound).toBeNull();
+  });
+});
+
 describe('winning', () => {
   it('reports the win exactly once and ignores input afterwards', () => {
     const b = board({

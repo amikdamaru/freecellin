@@ -81,9 +81,11 @@ export function cardsAt(board: Board, loc: Location, count: number): Card[] | nu
   }
 }
 
-/** Whether the top `count` cards of a location may be picked up at all. */
+/**
+ * Whether the top `count` cards of a location may be picked up at all.
+ * The top card of a foundation may be taken back (one card at a time).
+ */
 export function canPickUp(board: Board, loc: Location, count: number): boolean {
-  if (loc.kind === 'foundation') return false;
   const cards = cardsAt(board, loc, count);
   return cards !== null && isOrderedRun(cards);
 }
@@ -97,13 +99,16 @@ export function canMoveToFoundation(board: Board, card: Card, foundationIndex: n
 export function validateMove(board: Board, move: Move): ValidationResult {
   const { from, to, count } = move;
   if (sameLocation(from, to)) return { ok: false, reason: 'same-location' };
-  if (from.kind === 'foundation') return { ok: false, reason: 'from-foundation' };
   if (!Number.isInteger(count) || count < 1) return { ok: false, reason: 'bad-count' };
+  // House rule: a foundation's top card may be moved back, but only onto a tableau column.
+  if (from.kind === 'foundation' && to.kind !== 'tableau') return { ok: false, reason: 'from-foundation' };
 
   const moving = cardsAt(board, from, count);
   if (!moving) {
     const sourceEmpty =
-      from.kind === 'freecell' ? board.freeCells[from.index] == null : (board.tableau[from.index]?.length ?? 0) === 0;
+      from.kind === 'freecell'
+        ? board.freeCells[from.index] == null
+        : ((from.kind === 'foundation' ? board.foundations : board.tableau)[from.index]?.length ?? 0) === 0;
     return { ok: false, reason: sourceEmpty ? 'empty-source' : 'bad-count' };
   }
   if (!isOrderedRun(moving)) return { ok: false, reason: 'not-a-sequence' };

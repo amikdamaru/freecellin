@@ -58,7 +58,7 @@ These layout choices differ from the suggested structure:
 ## Rules and design decisions
 
 - **Sequence moves.** A run moves as one unit when its length is at most (empty free cells + 1) × 2^(empty columns). If the destination is an empty column, that column is not counted. A move into a free cell or onto a foundation is always a single card. A test also checks the formula against a brute-force model of single-card moves.
-- **Cards cannot leave a foundation**, as in Microsoft FreeCell.
+- **House rule: taking cards back from a foundation.** Unlike Microsoft FreeCell, the top card of a foundation can be moved back to the tableau, by selecting it and then the column, or by dragging it. This can help in some positions. The usual tableau rules apply: the card must go onto a card one rank higher of the opposite colour, or into an empty column. It cannot go to a free cell or another foundation. Each take-back counts as one move and can be undone. Double-clicking a foundation card does nothing, so progress is never lost by accident.
 - **Sound classification.** Each successful move plays exactly one of these:
   - **Foundation**: the card goes onto a foundation pile.
   - **Arrange**: the card or run is built onto a tableau card in descending order with alternating colours.

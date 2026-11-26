@@ -92,7 +92,7 @@ export function activateCard(state: InteractionState, loc: Location, cardIndex: 
     return attemptMove(state, { ...selection, to: loc }, now);
   }
 
-  if (loc.kind !== 'foundation' && canSelect(session, loc, count)) {
+  if (canSelect(session, loc, count)) {
     return noChange({ ...state, selection: { from: loc, count } }, { sound: SoundEvent.CARD_SELECTED });
   }
   return noChange(state, { rejectedCards: cardsAt(session.board, loc, Math.max(1, count)) });
@@ -111,7 +111,11 @@ export function dropCards(state: InteractionState, from: Location, count: number
   return attemptMove({ ...state, selection: null }, { from, to, count }, now);
 }
 
-/** Double-click / double-tap: send the cards to the best legal destination. */
+/**
+ * Double-click / double-tap: send the cards to the best legal destination.
+ * Not available on foundations: taking a card back must be a deliberate
+ * select-and-place or drag, never an accidental double-click.
+ */
 export function quickMove(state: InteractionState, loc: Location, cardIndex: number, now: number): Transition {
   const { session } = state;
   if (session.status !== 'playing' || loc.kind === 'foundation') return noChange(state);
