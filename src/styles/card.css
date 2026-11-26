@@ -1,0 +1,91 @@
+.card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--cw);
+  height: var(--ch);
+  border-radius: calc(var(--cw) * 0.09);
+  background: linear-gradient(180deg, #fffdf8 0%, #fbf7ee 100%);
+  border: 1px solid #d8d0bf;
+  box-shadow: 0 1px 2px rgba(60, 50, 30, 0.12), 0 0 0 0 transparent;
+  transition: box-shadow 0.12s, border-color 0.12s;
+  touch-action: pan-y;
+  overflow: hidden;
+}
+
+.card--red {
+  color: var(--red);
+}
+.card--black {
+  color: var(--black);
+}
+
+.card--interactive {
+  cursor: pointer;
+  touch-action: none; /* lets pointer events drive the drag on touch screens */
+}
+
+.card--selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent), 0 4px 12px rgba(80, 120, 170, 0.25);
+}
+
+.card--lifted {
+  visibility: hidden;
+}
+
+.column--target .card:last-child {
+  box-shadow: 0 0 0 2px var(--ok), 0 2px 8px rgba(80, 140, 100, 0.25);
+}
+
+/* Index (rank + suit) in the top-left corner: always visible in the fan. */
+.card__index {
+  position: absolute;
+  top: calc(var(--cw) * 0.05);
+  left: calc(var(--cw) * 0.07);
+  display: flex;
+  align-items: center;
+  gap: calc(var(--cw) * 0.02);
+  line-height: 1;
+}
+
+.card__rank {
+  font-size: clamp(13px, calc(var(--cw) * 0.29), 28px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.card__suit-small {
+  width: clamp(10px, calc(var(--cw) * 0.2), 20px);
+  height: clamp(10px, calc(var(--cw) * 0.2), 20px);
+}
+
+.card__index--bottom {
+  top: auto;
+  left: auto;
+  bottom: calc(var(--cw) * 0.05);
+  right: calc(var(--cw) * 0.07);
+  transform: rotate(180deg);
+}
+
+.card__pip {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: calc(var(--cw) * 0.46);
+  height: calc(var(--cw) * 0.46);
+  transform: translate(-50%, -50%);
+  opacity: 0.92;
+}
+
+/* Small cards: keep the index large, drop the decorative bottom index. */
+@media (max-width: 600px) {
+  .card__index--bottom {
+    display: none;
+  }
+  .card__pip {
+    top: 62%;
+    width: calc(var(--cw) * 0.52);
+    height: calc(var(--cw) * 0.52);
+  }
+}
