@@ -3,6 +3,18 @@ import type { Board, Move } from './gameState';
 import { canMoveToFoundation } from './moveValidator';
 
 /**
+ * The card each foundation needs next (one per suit, none for a completed
+ * suit): rank = pile length + 1. Used to hint those cards in the tableau.
+ */
+export function nextFoundationCards(board: Board): Card[] {
+  const out: Card[] = [];
+  board.foundations.forEach((pile, suit) => {
+    if (pile.length < 13) out.push(pile.length * 4 + suit);
+  });
+  return out;
+}
+
+/**
  * Auto-play: after every player move, any exposed card (free cell or top of a
  * tableau column) that can legally go to its foundation is moved there
  * automatically, lowest rank first, except cards in `pinned` (cards the

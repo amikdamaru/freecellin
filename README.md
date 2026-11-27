@@ -66,6 +66,7 @@ These layout choices differ from the suggested structure:
   - A single foundation chime follows the sound of the player's move.
   - Nothing is auto-played before the player's first move, so the timer is not started without a move by the player.
   - **Exception:** a card the player takes back from a foundation is *pinned*, and auto-play never sends it home again. It stays pinned until the player returns it to its foundation manually. Pins are saved with the game.
+- **Next-card hints.** For each foundation, the card it needs next is marked with a gold frame and a warm tint wherever that card sits in the tableau, including cards buried in a fan (`nextFoundationCards` in `engine/autoPlay.ts`). The mark moves as the foundations grow, disappears once a suit is complete, and does not affect the blue selection or the green valid-target highlights.
 - **House rule: taking cards back from a foundation.** Unlike Microsoft FreeCell, the top card of a foundation can be moved back to the tableau, by selecting it and then the column, or by dragging it. This can help in some positions. The usual tableau rules apply: the card must go onto a card one rank higher of the opposite colour, or into an empty column. It cannot go to a free cell or another foundation. Each take-back counts as one move and can be undone. Double-clicking a foundation card does nothing, so progress is never lost by accident.
 - **Sound classification.** Each successful move plays exactly one of these:
   - **Foundation**: the card goes onto a foundation pile.

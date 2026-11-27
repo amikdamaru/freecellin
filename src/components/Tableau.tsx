@@ -10,6 +10,8 @@ interface Props {
   /** Selected run starts at this card index (or null). */
   selectedFrom: number | null;
   lifted: ReadonlySet<number>;
+  /** Cards the foundations need next (highlighted). */
+  hinted: ReadonlySet<number>;
   target: boolean;
   enabled: boolean;
   onCard: (cardIndex: number) => void;
@@ -18,7 +20,7 @@ interface Props {
   onPress: (e: PointerEvent<HTMLDivElement>, cardIndex: number) => void;
 }
 
-export function Tableau({ index, cards, offset, selectedFrom, lifted, target, enabled, onCard, onEmpty, onQuickMove, onPress }: Props) {
+export function Tableau({ index, cards, offset, selectedFrom, lifted, hinted, target, enabled, onCard, onEmpty, onQuickMove, onPress }: Props) {
   const movableFrom = runStartIndex(cards);
   return (
     <div
@@ -48,6 +50,7 @@ export function Tableau({ index, cards, offset, selectedFrom, lifted, target, en
             style={{ top: `${i * offset}px`, zIndex: i + 1 }}
             selected={selectedFrom !== null && i >= selectedFrom}
             lifted={lifted.has(card)}
+            hint={hinted.has(card)}
             interactive={pickable}
             onPointerDown={pickable ? (e) => onPress(e, i) : undefined}
             onClick={() => onCard(i)}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
+import { nextFoundationCards } from '../engine/autoPlay';
 import { validDestinations } from '../engine/moveValidator';
 import type { Location } from '../engine/gameState';
 import type { GameApi } from '../hooks/useGame';
@@ -58,6 +59,11 @@ export function GameBoard({ game }: { game: GameApi }) {
     return new Set(validDestinations(board, active.from, active.count).map(key));
   }, [active, board, enabled]);
   const lifted = useMemo(() => new Set(drag?.cards ?? []), [drag]);
+  // The next card each foundation needs, highlighted wherever it sits in the tableau.
+  const hinted = useMemo(
+    () => new Set(session.status === 'playing' ? nextFoundationCards(board) : []),
+    [board, session.status],
+  );
 
   // ---- FLIP animation of moved cards ----------------------------------------
   const prevRects = useRef(new Map<number, DOMRect>());
@@ -170,6 +176,7 @@ export function GameBoard({ game }: { game: GameApi }) {
                 offset={fanOffset(cards.length, layout)}
                 selectedFrom={isSel ? cards.length - selection.count : null}
                 lifted={lifted}
+                hinted={hinted}
                 target={targets.has(key(loc))}
                 enabled={enabled}
                 onCard={guard((ci: number) => game.onCard(loc, ci))}

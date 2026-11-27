@@ -5,6 +5,8 @@ import { SuitIcon } from './icons';
 export interface CardProps {
   card: CardId;
   selected?: boolean;
+  /** This card is the next one a foundation needs (gold hint). */
+  hint?: boolean;
   /** Hidden while it is being dragged (the drag ghost shows it instead). */
   lifted?: boolean;
   interactive?: boolean;
@@ -14,7 +16,7 @@ export interface CardProps {
   onDoubleClick?: () => void;
 }
 
-function CardView({ card, selected, lifted, interactive, style, onPointerDown, onClick, onDoubleClick }: CardProps) {
+function CardView({ card, selected, hint, lifted, interactive, style, onPointerDown, onClick, onDoubleClick }: CardProps) {
   const suit = suitOf(card);
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -25,6 +27,7 @@ function CardView({ card, selected, lifted, interactive, style, onPointerDown, o
   const className = [
     'card',
     isRed(card) ? 'card--red' : 'card--black',
+    hint ? 'card--hint' : '',
     selected ? 'card--selected' : '',
     lifted ? 'card--lifted' : '',
     interactive ? 'card--interactive' : '',
@@ -39,7 +42,7 @@ function CardView({ card, selected, lifted, interactive, style, onPointerDown, o
       data-card-id={card}
       role={onClick ? 'button' : undefined}
       tabIndex={interactive ? 0 : -1}
-      aria-label={cardName(card)}
+      aria-label={hint ? `${cardName(card)}, next card for its foundation` : cardName(card)}
       aria-pressed={onClick ? Boolean(selected) : undefined}
       onPointerDown={onPointerDown}
       onClick={

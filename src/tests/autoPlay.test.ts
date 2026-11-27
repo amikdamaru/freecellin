@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseCard } from '../engine/card';
-import { nextAutoPlayMove } from '../engine/autoPlay';
+import { nextAutoPlayMove, nextFoundationCards } from '../engine/autoPlay';
 import { createSession, playMove, undo } from '../engine/gameActions';
 import { isCompleteBoard, type GameSession, type Location } from '../engine/gameState';
 import { createMemoryStore, loadGame, saveGame } from '../services/storage';
@@ -20,6 +20,17 @@ function sessionWith(spec: Parameters<typeof board>[0]): GameSession {
   if (!isCompleteBoard(b)) throw new Error('bad fixture');
   return { ...createSession(1), board: b };
 }
+
+describe('next foundation cards (hints)', () => {
+  it('lists the Aces on an empty board', () => {
+    expect(nextFoundationCards(board({})).sort((a, b) => a - b)).toEqual(['AC', 'AD', 'AH', 'AS'].map(parseCard));
+  });
+
+  it('follows each pile and skips completed suits', () => {
+    const b = board({ foundations: [pileUpTo('C', 13), pileUpTo('D', 5), [], pileUpTo('S', 12)] });
+    expect(nextFoundationCards(b)).toEqual(['6D', 'AH', 'KS'].map(parseCard));
+  });
+});
 
 describe('auto-play to foundations', () => {
   it('moves every eligible exposed card (tableau tops and free cells) after a player move, chaining', () => {
