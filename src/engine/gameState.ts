@@ -54,6 +54,11 @@ export interface GameSession {
   moveCount: number;
   status: GameStatus;
   timer: TimerState;
+  /**
+   * Cards the player took back from a foundation. Auto-play never sends them
+   * home again; they stay excluded until the player returns them manually.
+   */
+  pinned: Card[];
 }
 
 export function emptyBoard(): Board {

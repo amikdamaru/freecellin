@@ -66,6 +66,8 @@ export function useGame() {
       const moved = t.state.session !== prev.session;
       if (moved || t.state.selection !== prev.selection) commit(t.state, moved ? 'move' : undefined);
       if (t.effects.sound) audio.play(t.effects.sound);
+      // Auto-played cards: one foundation chime shortly after the player's own sound.
+      if (t.effects.autoPlayed > 0) window.setTimeout(() => audio.play(SoundEvent.CARD_TO_FOUNDATION), 170);
       if (t.effects.rejectedCards?.length) {
         setRejection({ cards: t.effects.rejectedCards, nonce: Date.now() + Math.random() });
       }

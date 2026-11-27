@@ -68,7 +68,7 @@ export function parseBoard(v: unknown): Board | null {
 
 export function parseSession(v: unknown): GameSession | null {
   if (!isObject(v)) return null;
-  const { dealNumber, board, history, moveCount, status, timer } = v;
+  const { dealNumber, board, history, moveCount, status, timer, pinned } = v;
   if (!isValidDealNumber(dealNumber)) return null;
   const parsedBoard = parseBoard(board);
   if (!parsedBoard) return null;
@@ -84,6 +84,10 @@ export function parseSession(v: unknown): GameSession | null {
   if ((status === 'won') !== isWon(parsedBoard)) return null;
   if (!isObject(timer) || !isTimestampOrNull(timer.startedAt) || !isTimestampOrNull(timer.stoppedAt)) return null;
   if (timer.startedAt === null && timer.stoppedAt !== null) return null;
+  // `pinned` was added later within version 1: optional, defaults to none.
+  if (pinned !== undefined && (!Array.isArray(pinned) || !pinned.every(isValidCard))) return null;
+  const home = new Set(parsedBoard.foundations.flat());
+  // Same field order as createSession(), so a saved and reloaded session serialises identically.
   return {
     dealNumber,
     board: parsedBoard,
@@ -91,6 +95,7 @@ export function parseSession(v: unknown): GameSession | null {
     moveCount,
     status,
     timer: { startedAt: timer.startedAt, stoppedAt: status === 'won' ? (timer.stoppedAt ?? timer.startedAt) : null },
+    pinned: ((pinned as number[] | undefined) ?? []).filter((c) => !home.has(c)),
   };
 }
 

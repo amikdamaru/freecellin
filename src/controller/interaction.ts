@@ -7,7 +7,7 @@
  * and guarantees sounds never come from re-renders.
  */
 import { SoundEvent, soundForMove } from '../audio/soundEvents';
-import { findQuickMove, performMove } from '../engine/gameActions';
+import { findQuickMove, playMove } from '../engine/gameActions';
 import { sameLocation, type GameSession, type Location, type Move } from '../engine/gameState';
 import { canPickUp, cardsAt } from '../engine/moveValidator';
 
@@ -22,7 +22,10 @@ export interface InteractionState {
 }
 
 export interface Effects {
+  /** The sound of the player's own action (at most one). */
   sound: SoundEvent | null;
+  /** Cards auto-played to the foundations right after the player's move. */
+  autoPlayed: number;
   /** True exactly once: on the move that wins the game. */
   won: boolean;
   /** Cards to flash as an invalid attempt (or a non-selectable tap). */
@@ -34,7 +37,7 @@ export interface Transition {
   effects: Effects;
 }
 
-const NO_EFFECTS: Effects = { sound: null, won: false, rejectedCards: null };
+const NO_EFFECTS: Effects = { sound: null, autoPlayed: 0, won: false, rejectedCards: null };
 
 function noChange(state: InteractionState, effects: Partial<Effects> = {}): Transition {
   return { state, effects: { ...NO_EFFECTS, ...effects } };
@@ -50,23 +53,27 @@ export function canSelect(session: GameSession, loc: Location, count: number): b
   return session.status === 'playing' && count >= 1 && canPickUp(session.board, loc, count);
 }
 
-/** Attempt a move; success plays exactly one move-category sound, failure plays the invalid sound. */
+/**
+ * Attempt a move (plus auto-play to the foundations). The player's move plays
+ * exactly one move-category sound; failure plays the invalid sound only.
+ */
 export function attemptMove(state: InteractionState, move: Move, now: number): Transition {
-  const outcome = performMove(state.session, move, now);
+  const outcome = playMove(state.session, move, now);
   if (!outcome.ok) {
     if (outcome.reason === 'game-over') return noChange({ ...state, selection: null });
-    return {
-      state: { ...state, selection: null },
-      effects: {
-        sound: SoundEvent.INVALID_MOVE,
-        won: false,
-        rejectedCards: cardsAt(state.session.board, move.from, move.count),
-      },
-    };
+    return noChange(
+      { ...state, selection: null },
+      { sound: SoundEvent.INVALID_MOVE, rejectedCards: cardsAt(state.session.board, move.from, move.count) },
+    );
   }
   return {
     state: { session: outcome.session, selection: null },
-    effects: { sound: soundForMove(outcome.kind), won: outcome.won, rejectedCards: null },
+    effects: {
+      sound: soundForMove(outcome.kind),
+      autoPlayed: outcome.autoMoves.length,
+      won: outcome.won,
+      rejectedCards: null,
+    },
   };
 }
 
@@ -125,10 +132,10 @@ export function quickMove(state: InteractionState, loc: Location, cardIndex: num
   }
   const move = findQuickMove(session.board, loc, count);
   if (!move) {
-    return {
-      state: { ...state, selection: null },
-      effects: { sound: SoundEvent.INVALID_MOVE, won: false, rejectedCards: cardsAt(session.board, loc, count) },
-    };
+    return noChange(
+      { ...state, selection: null },
+      { sound: SoundEvent.INVALID_MOVE, rejectedCards: cardsAt(session.board, loc, count) },
+    );
   }
   return attemptMove({ ...state, selection: null }, move, now);
 }

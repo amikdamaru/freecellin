@@ -60,6 +60,12 @@ These layout choices differ from the suggested structure:
 ## Rules and design decisions
 
 - **Sequence moves.** A run moves as one unit when its length is at most (empty free cells + 1) × 2^(empty columns). If the destination is an empty column, that column is not counted. A move into a free cell or onto a foundation is always a single card. A test also checks the formula against a brute-force model of single-card moves.
+- **Auto-play to foundations** (`engine/autoPlay.ts`, `playMove`). After each player move, every exposed card that can legally go to its foundation moves there automatically, lowest rank first, repeating until none is left. "Exposed" means the top card of a tableau column or a card in a free cell.
+  - Each automatic move counts as one move.
+  - The player's move and its automatic moves form one Undo step.
+  - A single foundation chime follows the sound of the player's move.
+  - Nothing is auto-played before the player's first move, so the timer is not started without a move by the player.
+  - **Exception:** a card the player takes back from a foundation is *pinned*, and auto-play never sends it home again. It stays pinned until the player returns it to its foundation manually. Pins are saved with the game.
 - **House rule: taking cards back from a foundation.** Unlike Microsoft FreeCell, the top card of a foundation can be moved back to the tableau, by selecting it and then the column, or by dragging it. This can help in some positions. The usual tableau rules apply: the card must go onto a card one rank higher of the opposite colour, or into an empty column. It cannot go to a free cell or another foundation. Each take-back counts as one move and can be undone. Double-clicking a foundation card does nothing, so progress is never lost by accident.
 - **Sound classification.** Each successful move plays exactly one of these:
   - **Foundation**: the card goes onto a foundation pile.

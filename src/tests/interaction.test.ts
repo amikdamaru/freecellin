@@ -48,7 +48,10 @@ describe('one action -> one sound', () => {
     const t1 = activateCard(state(), T(0), 1, 0); // select 8H
     const t2 = activateCard(t1.state, T(1), 0, 1000); // onto 9C
     expect(t2.effects.sound).toBe(SoundEvent.CARD_ARRANGED);
-    expect(t2.state.session.moveCount).toBe(1);
+    // The exposed AH is then auto-played to its foundation: +1 move, reported separately.
+    expect(t2.effects.autoPlayed).toBe(1);
+    expect(t2.state.session.board.foundations[2]).toHaveLength(1);
+    expect(t2.state.session.moveCount).toBe(2);
     expect(t2.state.session.timer.startedAt).toBe(1000);
   });
 
